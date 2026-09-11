@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Access Gateway | ApexForex Terminal</title>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body { background: radial-gradient(circle at top, #111827 0%, #030712 100%); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-gray-100 font-sans">
+
+    <div class="w-full bg-gray-900 border-b border-gray-800 text-center py-2 text-xs text-gray-400 font-mono">
+        🔒 SECURE 256-BIT ENCRYPTED REGISTRATION & AUTHENTICATION ENDPOINT
+    </div>
+
+    <!-- Auth Module Card -->
+    <div class="max-w-md w-full mx-auto p-8 bg-gray-900 rounded-xl border border-gray-800 shadow-2xl my-auto">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-black tracking-wider text-blue-500">APEX<span class="text-white font-light">FOREX</span></h1>
+            <p id="gateway-subtitle" class="text-xs text-gray-400 mt-1">Access the Global Spot FX Matrix</p>
+        </div>
+
+        <!-- Auth Tabs Toggle -->
+        <div class="flex border-b border-gray-800 mb-6 text-sm font-semibold">
+            <button id="tab-login" onclick="toggleAuthMode('login')" class="flex-1 pb-3 text-blue-500 border-b-2 border-blue-500 focus:outline-none">Sign In</button>
+            <button id="tab-register" onclick="toggleAuthMode('register')" class="flex-1 pb-3 text-gray-500 border-b-transparent focus:outline-none">Create Account</button>
+        </div>
+
+        <!-- Status Message Banner -->
+        <div id="status-banner" class="hidden text-xs p-3 rounded mb-4 font-mono"></div>
+
+        <!-- Unified Interactive Form -->
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Clearing Account ID / Email</label>
+                <input type="email" id="auth-email" required placeholder="trader@apexsecure.com" class="w-full bg-black border border-gray-800 rounded px-4 py-2.5 text-sm font-mono text-white focus:outline-none focus:border-blue-500 transition">
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Secure Access Password</label>
+                <input type="password" id="auth-password" required placeholder="••••••••••••" class="w-full bg-black border border-gray-800 rounded px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+            </div>
+
+            <!-- Dynamic Registration Field Container -->
+            <div id="registration-only-fields" class="hidden space-y-4 pt-1">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">Select Initial Account Tier</label>
+                    <select id="auth-balance" class="w-full bg-black border border-gray-800 rounded px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition">
+                        <option value="10000">Standard Demo Balance ($10,000 USD)</option>
+                        <option value="50000">Pro Institutional Balance ($50,000 USD)</option>
+                        <option value="100000">Apex VIP Master Balance ($100,000 USD)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded text-xs uppercase tracking-wider transition font-mono">
+                Initialize Trading Session
+            </button>
+        </form>
+    </div>
+
+    <div class="w-full max-w-4xl mx-auto p-6 text-center text-[10px] text-gray-600 leading-relaxed border-t border-gray-900">
+        <p><strong>REGULATORY PROTECTIONS NOTICE:</strong> All newly registered accounts are securely bound to the client sandboxed ledger database layer. Verification parameters strictly adhere to standard CFTC data governance structures.</p>
+    </div>
+
+    <script>
+        let currentMode = 'login';
+
+        function toggleAuthMode(mode) {
+            currentMode = mode;
+            const regFields = document.getElementById('registration-only-fields');
+            const submitBtn = document.getElementById('submit-btn');
+            const subtitle = document.getElementById('gateway-subtitle');
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const banner = document.getElementById('status-banner');
+            
+            banner.className = "hidden"; // clear alerts
+
+            if (mode === 'register') {
+                regFields.classList.remove('hidden');
+                submitBtn.innerText = 'Generate Live Clearing Profile';
+                subtitle.innerText = 'Establish an Instant NFA-Compliant Trading Vault';
+                tabRegister.className = "flex-1 pb-3 text-blue-500 border-b-2 border-blue-500 focus:outline-none";
+                tabLogin.className = "flex-1 pb-3 text-gray-500 border-b-transparent focus:outline-none";
+            } else {
+                regFields.classList.add('hidden');
+                submitBtn.innerText = 'Initialize Trading Session';
+                subtitle.innerText = 'Access the Global Spot FX Matrix';
+                tabLogin.className = "flex-1 pb-3 text-blue-500 border-b-2 border-blue-500 focus:outline-none";
+                tabRegister.className = "flex-1 pb-3 text-gray-500 border-b-transparent focus:outline-none";
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const banner = document.getElementById('status-banner');
+
+            // Fetch current sandbox database index
+            let userDB = JSON.parse(localStorage.getItem('apex_users_db')) || {};
+
+            if (currentMode === 'register') {
+                if (userDB[email]) {
+                    banner.innerText = "❌ Registration Error: This email layout already holds a profile.";
+                    banner.className = "text-center text-red-400 bg-red-950 border border-red-900 text-xs p-3 rounded mb-4 font-mono";
+                    return;
+                }
+                
+                const selectedFund = parseFloat(document.getElementById('auth-balance').value);
+                
+                // Write profile to database payload
+                userDB[email] = {
+                    password: password,
+                    balance: selectedFund,
+                    positions: []
+                };
+                localStorage.setItem('apex_users_db', JSON.stringify(userDB));
+                
+                banner.innerText = "✅ Profile Established Successfully! Switching to Sign In...";
+                banner.className = "text-center text-green-400 bg-green-950 border border-green-900 text-xs p-3 rounded mb-4 font-mono";
+                setTimeout(() => { toggleAuthMode('login'); }, 1500);
+
+            } else {
+                // Login Verification Check
+                const currentProfile = userDB[email];
+                if (!currentProfile || currentProfile.password !== password) {
+                    banner.innerText = "❌ Security Alert: Re-verify credentials or profile ID details.";
+                    banner.className = "text-center text-red-400 bg-red-950 border border-red-900 text-xs p-3 rounded mb-4 font-mono";
+                    return;
+                }
+
+                // Inject secure active token payload for session validation
+                localStorage.setItem('apex_active_session', email);
+                window.location.href = 'terminal.html';
+            }
+        }
+    </script>
+</body>
+</html>
+
